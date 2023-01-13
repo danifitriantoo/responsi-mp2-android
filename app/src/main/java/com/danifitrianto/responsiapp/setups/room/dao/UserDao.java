@@ -12,6 +12,9 @@ public interface UserDao {
     @Query("SELECT * FROM Users WHERE email = :email AND password LIKE :password")
     Users checkCredetials(String email, String password);
 
+    @Query("UPDATE Users SET email=:email, password=:password, address=:address,name=:name WHERE user_id=:id")
+    void updateData(String email, String password, String address, String name, int id);
+
     @Insert
     void insert(Users models);
 }

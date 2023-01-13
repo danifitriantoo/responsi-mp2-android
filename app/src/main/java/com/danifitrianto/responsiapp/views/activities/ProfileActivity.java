@@ -5,20 +5,20 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.danifitrianto.responsiapp.R;
 import com.danifitrianto.responsiapp.models.Users;
 import com.danifitrianto.responsiapp.setups.prefs.PreferencesHelper;
 import com.danifitrianto.responsiapp.setups.room.DatabaseClient;
 
-public class RegisterActivity extends AppCompatActivity {
+public class ProfileActivity extends AppCompatActivity {
 
-    private EditText etEmail, etPassword, etConfirm;
-    private Button btnRegister;
+    private EditText etEmail, etPassword, etName,etAddress;
+    private Button btnUpdate;
     private ImageButton btnBack;
     private PreferencesHelper preferencesHelper;
     private Users users;
@@ -26,54 +26,50 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
+        setContentView(R.layout.activity_profile);
 
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
+        etName = findViewById(R.id.etName);
+        etAddress = findViewById(R.id.etAddress);
+        btnUpdate = findViewById(R.id.btnUpdate);
         btnBack = findViewById(R.id.btnBack);
-        etConfirm = findViewById(R.id.etConfirm);
-        btnRegister = findViewById(R.id.btnRegister);
 
-        btnRegister.setOnClickListener(view -> {
+        preferencesHelper.getInstance(getApplicationContext());
+
+        btnUpdate.setOnClickListener(view -> {
             if(!etEmail.getText().toString().isEmpty()
-                    && !etPassword.getText().toString().isEmpty()
-                    && !etConfirm.getText().toString().isEmpty()) {
-                if(etPassword.getText().toString().equals(etConfirm.getText().toString())) {
+                    && !etName.getText().toString().isEmpty()
+                    && !etAddress.getText().toString().isEmpty()) {
 
-                    Users model = new Users(
-                            etEmail.getText().toString(),
-                            etConfirm.getText().toString()
-                    );
-
-                    class registerTaslAsync extends AsyncTask<Void, Void, Void> {
-
+                    class updateData extends AsyncTask<Void, Void, Void> {
                         @Override
                         protected Void doInBackground(Void... voids) {
+
                             DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
                                     .userDao()
-                                    .insert(model);
+                                    .updateData(
+                                            etEmail.getText().toString(),
+                                            etPassword.getText().toString(),
+                                            etAddress.getText().toString(),
+                                            etName.getText().toString(),
+                                            preferencesHelper.getCredentials()
 
-                            users = DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
-                                    .userDao()
-                                    .checkCredetials(etEmail.getText().toString(), etPassword.getText().toString());
+                                    );
 
 
                             if(users != null) {
                                 preferencesHelper.getInstance(getApplicationContext())
                                         .setCredentials(users.getUser_id());
 
-
-                                Intent i = new Intent(RegisterActivity.this,HomeActivity.class);
-                                startActivity(i);
                             }
 
                             return null;
-                        }
 
                     }
-                    registerTaslAsync task = new registerTaslAsync();
-                    task.execute();
                 }
+                updateData asyncTask = new updateData();
+                asyncTask.execute();
             }
         });
 

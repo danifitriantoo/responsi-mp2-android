@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.danifitrianto.responsiapp.R;
 import com.danifitrianto.responsiapp.models.Users;
+import com.danifitrianto.responsiapp.setups.prefs.PreferencesHelper;
 import com.danifitrianto.responsiapp.setups.room.DatabaseClient;
 
 import java.util.ArrayList;
@@ -21,6 +22,8 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etEmail, etPassword;
     private Button btnLogin;
     private TextView btnPassword,btnRegister;
+    private Users credential;
+    private PreferencesHelper preferencesHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,15 +44,23 @@ public class LoginActivity extends AppCompatActivity {
 
                     @Override
                     protected Void doInBackground(Void... voids) {
-                        Users credential = new Users("", "");
 
                         credential = DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
                                 .userDao()
                                 .checkCredetials(etEmail.getText().toString(), etPassword.getText().toString());
 
-                        if (credential.getEmail().isEmpty()) {
-                            Intent i = new Intent(LoginActivity.this, HomeActivity.class);
-                            startActivity(i);
+                        if (credential != null) {
+                            preferencesHelper.getInstance(getApplicationContext())
+                                    .setCredentials(credential.getUser_id());
+                            if(credential.getAddress() == null) {
+                                Intent i = new Intent(LoginActivity.this, ProfileActivity.class);
+                                i.putExtra("id",credential.getUser_id());
+                                startActivity(i);
+                            } else {
+                                Intent i = new Intent(LoginActivity.this, HomeActivity.class);
+                                startActivity(i);
+                            }
+
                         }
                         return null;
                     }
