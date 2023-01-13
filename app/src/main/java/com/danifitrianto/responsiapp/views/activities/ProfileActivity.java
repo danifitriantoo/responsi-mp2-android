@@ -56,13 +56,7 @@ public class ProfileActivity extends AppCompatActivity {
                                             preferencesHelper.getCredentials()
 
                                     );
-
-
-                            if(users != null) {
-                                preferencesHelper.getInstance(getApplicationContext())
-                                        .setCredentials(users.getUser_id());
-
-                            }
+                            
 
                             return null;
 
